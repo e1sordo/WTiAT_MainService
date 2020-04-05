@@ -6,4 +6,5 @@ import org.springframework.data.mongodb.core.mapping.Document
 @Document
 data class Device(
     @Id val id: String? = null
+
 )

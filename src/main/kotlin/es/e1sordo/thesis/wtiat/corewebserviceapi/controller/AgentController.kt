@@ -1,23 +1,36 @@
 package es.e1sordo.thesis.wtiat.corewebserviceapi.controller
 
-import es.e1sordo.thesis.wtiat.corewebserviceapi.dao.AgentDao
-import es.e1sordo.thesis.wtiat.corewebserviceapi.model.Agent
+import es.e1sordo.thesis.wtiat.corewebserviceapi.dto.AgentGetDto
+import es.e1sordo.thesis.wtiat.corewebserviceapi.dto.AgentPostDto
+import es.e1sordo.thesis.wtiat.corewebserviceapi.mapper.DtoMapper
+import es.e1sordo.thesis.wtiat.corewebserviceapi.service.AgentService
 import org.springframework.http.MediaType
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping(
     value = ["/rest/agents"],
     produces = [MediaType.APPLICATION_JSON_VALUE]
 )
-class AgentController(private val agentDao: AgentDao) {
+class AgentController(
+    private val agentService: AgentService,
+    private val dtoMapper: DtoMapper
+) {
 
     @GetMapping
-    fun getAll(): MutableList<Agent> = agentDao.findAll()
+    fun getAll(): List<AgentGetDto> = agentService.getAll().map(dtoMapper::toAgentGetDto)
 
     @PostMapping
-    fun register(): Agent = agentDao.save(Agent())
+    fun exchange(@RequestBody request: AgentPostDto): AgentGetDto {
+        val agentRequest = dtoMapper.fromAgentPostDto(request)
+
+        val agentId = agentRequest.id
+        val createdAgent = if (agentId != null && (agentService.getById(agentId).isPresent)) {
+            agentService.update(agentRequest, fromAgent = true)
+        } else {
+            agentService.create(agentRequest)
+        }
+
+        return dtoMapper.toAgentGetDto(createdAgent)
+    }
 }
