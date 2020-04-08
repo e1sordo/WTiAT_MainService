@@ -6,11 +6,13 @@ plugins {
     kotlin("jvm") version "1.3.71"
     kotlin("kapt") version "1.3.71"
     kotlin("plugin.spring") version "1.3.71"
+    groovy
 }
 
 group = "es.e1sordo.thesis.wtiat"
 version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_11
+java.sourceCompatibility = JavaVersion.VERSION_1_8
+java.targetCompatibility = JavaVersion.VERSION_1_8
 
 val developmentOnly by configurations.creating
 configurations {
@@ -38,6 +40,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.springframework.cloud:spring-cloud-config-server")
     implementation("org.springframework.kafka:spring-kafka")
+    implementation("com.github.javafaker:javafaker:0.12")
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
@@ -49,6 +52,10 @@ dependencies {
     }
     testImplementation("de.flapdoodle.embed:de.flapdoodle.embed.mongo")
     testImplementation("org.springframework.kafka:spring-kafka-test")
+    testImplementation("junit:junit:4.12")
+    testImplementation("org.codehaus.groovy:groovy-all:2.4.4")
+    testImplementation("org.spockframework:spock-core:1.1-groovy-2.4")
+    testImplementation("org.spockframework:spock-spring:1.1-groovy-2.4")
 }
 
 dependencyManagement {
@@ -56,10 +63,6 @@ dependencyManagement {
         mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")
         mavenBom("com.vaadin:vaadin-bom:14.0.9")
     }
-}
-
-tasks.withType<Test> {
-    useJUnitPlatform()
 }
 
 tasks.withType<KotlinCompile> {

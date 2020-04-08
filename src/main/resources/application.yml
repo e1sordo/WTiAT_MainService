@@ -1,0 +1,46 @@
+server.port: 8090
+
+application:
+  devices:
+    dictionary:
+      tcp-siemens-sinamics-g120:
+        name: Sinamics G120
+        manufacturer: Siemens
+        type: Преобразователь частоты
+        connection:
+          protocol: TCP
+          params: ip, port, rack, slot
+        read:
+          params: number, index, dataType
+        defaultMetrics:
+          - name: speed
+            description: Действительная частота вращения двигателя
+            unit:
+            access: 21, 0, FLOAT_32
+          - name: current
+            description: Действительное значение тока якоря
+            unit:
+            access: 27, 0, FLOAT_32
+          - name: temperature
+            description: Температура
+            unit:
+            access: 35, 0, FLOAT_32
+
+spring:
+  data:
+    #mongoDB
+    mongodb:
+      authentication-database: admin
+      database: WTiAT_MainService
+      host: 127.0.0.1
+      port: 27017
+  #      username: springboot
+  #      password: spring
+  #jackson
+  jackson:
+    serialization:
+      indent-output: true
+      write-dates-as-timestamps: false
+      fail-on-empty-beans: false
+    deserialization:
+      fail-on-unknown-properties: false
