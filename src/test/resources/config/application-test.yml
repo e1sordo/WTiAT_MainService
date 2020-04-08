@@ -1,0 +1,29 @@
+application:
+  devices:
+    dictionary:
+      tcp-siemens-sinamics-g120:
+        name: Sinamics G120
+        manufacturer: Siemens
+        type: Преобразователь частоты
+        connection:
+          protocol: TCP
+          params: ip, port, rack, slot
+        read:
+          params: number, index, dataType
+        defaultMetrics:
+          - name: speed
+            description: Действительная частота вращения двигателя
+            unit:
+            access: 21, 0, FLOAT_32
+          - name: current
+            description: Действительное значение тока якоря
+            unit:
+            access: 27, 0, FLOAT_32
+          - name: temperature
+            description: Температура
+            unit:
+            access: 35, 0, FLOAT_32
+
+spring:
+  main.allow-bean-definition-overriding: true
+  data.mongodb.port: 0 # setup a random port for the embedded mongo instance
