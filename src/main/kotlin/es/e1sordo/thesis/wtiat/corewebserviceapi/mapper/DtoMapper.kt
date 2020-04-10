@@ -19,9 +19,9 @@ interface DtoMapper {
         value = [
             Mapping(target = "shouldTerminate", expression = "java(source.getState().getShouldTerminate())"),
             Mapping(
-                target = "assignedDeviceName",
+                target = "assignedConnectorName",
                 source = "assignedDevice",
-                qualifiedByName = ["getAssignedDeviceNameIfExists"]
+                qualifiedByName = ["getAssignedConnectorNameIfExists"]
             )
         ]
     )

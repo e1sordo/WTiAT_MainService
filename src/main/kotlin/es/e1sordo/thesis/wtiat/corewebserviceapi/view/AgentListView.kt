@@ -6,6 +6,7 @@ import com.vaadin.flow.component.UI
 import com.vaadin.flow.component.applayout.AppLayout
 import com.vaadin.flow.component.button.Button
 import com.vaadin.flow.component.combobox.ComboBox
+import com.vaadin.flow.component.dependency.HtmlImport
 import com.vaadin.flow.component.dialog.Dialog
 import com.vaadin.flow.component.grid.Grid
 import com.vaadin.flow.component.grid.GridVariant
@@ -13,6 +14,7 @@ import com.vaadin.flow.component.grid.editor.Editor
 import com.vaadin.flow.component.html.Div
 import com.vaadin.flow.component.html.H2
 import com.vaadin.flow.component.html.NativeButton
+import com.vaadin.flow.component.html.Span
 import com.vaadin.flow.component.icon.VaadinIcon
 import com.vaadin.flow.component.notification.Notification
 import com.vaadin.flow.component.orderedlayout.VerticalLayout
@@ -20,6 +22,7 @@ import com.vaadin.flow.data.binder.Binder
 import com.vaadin.flow.data.renderer.ComponentRenderer
 import com.vaadin.flow.data.renderer.TemplateRenderer
 import com.vaadin.flow.data.renderer.TextRenderer
+import com.vaadin.flow.function.SerializableFunction
 import com.vaadin.flow.router.Route
 import com.vaadin.flow.router.RouterLink
 import es.e1sordo.thesis.wtiat.corewebserviceapi.enum.AgentState.*
@@ -31,6 +34,7 @@ import es.e1sordo.thesis.wtiat.corewebserviceapi.util.howLongAgoItWasBeauty
 import java.util.*
 
 @Route("agents")
+@HtmlImport("frontend://styles/shared-styles.html")
 class AgentListView(
     private val service: AgentService,
     private val deviceService: DeviceService
@@ -46,15 +50,38 @@ class AgentListView(
         grid.setItems(service.getAll())
 
         //Выведем столбцы в нужном порядке
-        grid.addColumn(Agent::id).setHeader("ID").isAutoWidth = true
+
+        grid.addColumn(
+            ComponentRenderer(SerializableFunction { agent: Agent ->
+                val sp = Span()
+                val agentId = agent.id
+                sp.text = agentId
+                sp.style.set("font-size", "0.8em")
+                sp
+            })
+        ).setHeader("ID").isAutoWidth = true
+
         grid.addColumn(Agent::name).setHeader("Название").isAutoWidth = true
         grid.addColumn { it.registerDate?.howLongAgoItWasBeauty() }.setHeader("Регистрация").isAutoWidth = true
 
-
-
-
-        grid.addColumn(Agent::state).setHeader("Состояние").isAutoWidth = true
-
+        grid.addColumn(
+            ComponentRenderer(SerializableFunction { agent: Agent ->
+                val sp = Span()
+                val agentState = agent.state
+                sp.text = agentState.toString()
+                when (agentState) {
+                    NOT_RESPONDED -> sp.style.set("color", "red")
+                    BUSY -> sp.style.set("font-weight", "bold")
+                    TO_TERMINATE -> sp.style.set("color", "slategray")
+                    TERMINATED -> {
+                        sp.style.set("color", "slategray")
+                        sp.style.set("font-style", "italic")
+                    }
+                    else -> Unit
+                }
+                sp
+            })
+        ).setHeader("Состояние").isAutoWidth = true
 
 
 

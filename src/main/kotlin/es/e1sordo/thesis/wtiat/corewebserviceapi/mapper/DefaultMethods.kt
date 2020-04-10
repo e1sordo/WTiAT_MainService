@@ -11,8 +11,8 @@ import org.mapstruct.ReportingPolicy
 )
 open class DefaultMethods {
 
-    @Named("getAssignedDeviceNameIfExists")
-    fun getAssignedDeviceNameIfExists(device: Device?): String? {
-        return device?.name
+    @Named("getAssignedConnectorNameIfExists")
+    fun getAssignedConnectorNameIfExists(device: Device?): String? {
+        return device?.connectorName
     }
 }
