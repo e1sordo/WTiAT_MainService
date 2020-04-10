@@ -21,17 +21,16 @@ private val timesString: Array<String> = arrayOf(
 fun LocalDateTime.howLongAgoItWasBeauty(): String? {
     val duration = howLongAgoItWasInMillis()
 
-    val res = StringBuffer()
+    var res = ""
     for (i in times.indices) {
         val current: Long = times[i]
         val temp = duration / current
         if (temp > 0) {
-            res.append(temp).append(" ").append(timesString[i]).append(if (temp != 1L) "s" else "")
-                .append(" ago")
+            res = "$temp ${timesString[i]}${if (temp != 1L) "s" else ""} ago"
             break
         }
     }
-    return if ("" == res.toString()) "Just now" else res.toString()
+    return if ("" == res) "Just now" else res
 }
 
 fun LocalDateTime.howLongAgoItWasInMillis() = Duration.between(this, getCurrentTime()).toMillis()

@@ -2,28 +2,39 @@ package es.e1sordo.thesis.wtiat.corewebserviceapi.view
 
 import com.vaadin.flow.component.ComponentEventListener
 import com.vaadin.flow.component.HtmlContainer
+import com.vaadin.flow.component.UI
 import com.vaadin.flow.component.applayout.AppLayout
 import com.vaadin.flow.component.button.Button
+import com.vaadin.flow.component.combobox.ComboBox
 import com.vaadin.flow.component.dialog.Dialog
 import com.vaadin.flow.component.grid.Grid
 import com.vaadin.flow.component.grid.GridVariant
+import com.vaadin.flow.component.grid.editor.Editor
+import com.vaadin.flow.component.html.Div
 import com.vaadin.flow.component.html.H2
 import com.vaadin.flow.component.html.NativeButton
+import com.vaadin.flow.component.icon.VaadinIcon
 import com.vaadin.flow.component.notification.Notification
 import com.vaadin.flow.component.orderedlayout.VerticalLayout
-import com.vaadin.flow.data.renderer.ClickableRenderer.ItemClickListener
+import com.vaadin.flow.data.binder.Binder
 import com.vaadin.flow.data.renderer.ComponentRenderer
-import com.vaadin.flow.data.renderer.NativeButtonRenderer
 import com.vaadin.flow.data.renderer.TemplateRenderer
+import com.vaadin.flow.data.renderer.TextRenderer
 import com.vaadin.flow.router.Route
 import com.vaadin.flow.router.RouterLink
-import es.e1sordo.thesis.wtiat.corewebserviceapi.enum.AgentState
+import es.e1sordo.thesis.wtiat.corewebserviceapi.enum.AgentState.*
 import es.e1sordo.thesis.wtiat.corewebserviceapi.model.Agent
+import es.e1sordo.thesis.wtiat.corewebserviceapi.model.Device
 import es.e1sordo.thesis.wtiat.corewebserviceapi.service.AgentService
+import es.e1sordo.thesis.wtiat.corewebserviceapi.service.DeviceService
 import es.e1sordo.thesis.wtiat.corewebserviceapi.util.howLongAgoItWasBeauty
+import java.util.*
 
 @Route("agents")
-class AgentListView(private val service: AgentService) : AppLayout() {
+class AgentListView(
+    private val service: AgentService,
+    private val deviceService: DeviceService
+) : AppLayout() {
 
     private var layout: VerticalLayout = VerticalLayout()
     private var grid: Grid<Agent> = Grid<Agent>()
@@ -32,35 +43,96 @@ class AgentListView(private val service: AgentService) : AppLayout() {
     init {
         addToNavbar(H2("Список существующих агентов"))
 
+        grid.setItems(service.getAll())
+
         //Выведем столбцы в нужном порядке
         grid.addColumn(Agent::id).setHeader("ID").isAutoWidth = true
         grid.addColumn(Agent::name).setHeader("Название").isAutoWidth = true
         grid.addColumn { it.registerDate?.howLongAgoItWasBeauty() }.setHeader("Регистрация").isAutoWidth = true
+
+
+
+
         grid.addColumn(Agent::state).setHeader("Состояние").isAutoWidth = true
+
+
+
+
         grid.addColumn { it.lastResponseTime?.howLongAgoItWasBeauty() }.setHeader("Последний отклик").isAutoWidth = true
         grid.addColumn(Agent::ip).setHeader("IP").isAutoWidth = true
         grid.addColumn(Agent::pid).setHeader("PID").isAutoWidth = true
-        grid.addColumn(Agent::assignedDevice).setHeader("Устройство").isAutoWidth = true
-        grid.addColumn(Agent::assignedDate).setHeader("Время назначения").isAutoWidth = true
+        val assignedDeviceColumn: Grid.Column<Agent> =
+            grid.addColumn { it.assignedDevice?.name }.setHeader("Устройство")
+        assignedDeviceColumn.isAutoWidth = true
+        grid.addColumn { it.assignedDate?.howLongAgoItWasBeauty() }.setHeader("Время назначения").isAutoWidth = true
 
-        //Добавим кнопку удаления и редактирования
-        grid.addColumn(
-            NativeButtonRenderer("Изменить",
-                ItemClickListener { agent: Agent ->
-                    Unit
-                    //                        UI.getCurrent().navigate(ManageAgentView::class.java, agent.id)
+        val binder: Binder<Agent> = Binder(Agent::class.java)
+        val editor: Editor<Agent> = grid.editor
+        editor.binder = binder
+        editor.isBuffered = true
+
+        val assignedDeviceSelect = ComboBox<Device>()
+        assignedDeviceSelect.setItems(deviceService.getAll())
+        assignedDeviceSelect.setRenderer(TextRenderer(Device::name))
+        assignedDeviceSelect.isClearButtonVisible = true
+        assignedDeviceSelect.setItemLabelGenerator { it.name }
+        binder.bind(assignedDeviceSelect, "assignedDevice")
+        assignedDeviceColumn.editorComponent = assignedDeviceSelect
+
+        val editButtons: MutableCollection<Button> = Collections.newSetFromMap(WeakHashMap())
+
+        val editorColumn: Grid.Column<Agent> =
+            grid.addComponentColumn { agent: Agent? ->
+                val edit = Button(VaadinIcon.EDIT.create())
+                edit.addClickListener {
+                    editor.editItem(agent)
+                    assignedDeviceSelect.value = agent?.assignedDevice
+                    assignedDeviceSelect.focus()
                 }
-            )
-        ).isAutoWidth = true
+                edit.isEnabled = !editor.isOpen
+                editButtons.add(edit)
+                edit
+            }
 
+        editor.addOpenListener {
+            editButtons.stream()
+                .forEach { button: Button ->
+                    button.isEnabled = !editor.isOpen
+                }
+        }
+        editor.addCloseListener {
+            editButtons.stream()
+                .forEach { button: Button ->
+                    button.isEnabled = !editor.isOpen
+                }
+        }
+
+        val save = Button(VaadinIcon.CHECK_CIRCLE.create(),
+            ComponentEventListener { editor.save() }
+        )
+        save.addClassName("save")
+
+        val cancel = Button(VaadinIcon.CLOSE_CIRCLE.create(),
+            ComponentEventListener { editor.cancel() }
+        )
+        cancel.addClassName("cancel")
+
+        // Add a keypress listener that listens for an escape key up event.
+        // Note! some browsers return key as Escape and some as Esc
+        grid.element
+            .addEventListener("keyup") { editor.cancel() }
+            .filter = "event.key === 'Escape' || event.key === 'Esc'"
+
+
+        val buttons = Div(save, cancel)
+        editorColumn.editorComponent = buttons
+
+
+        //Добавим кнопку удаления и остановки
         grid.addColumn(ComponentRenderer { item: Agent ->
             when (item.state) {
-                AgentState.TERMINATED -> buildButtonWithDialog(item, "удалить", service::delete)
-                AgentState.FREE, AgentState.NOT_RESPONDED -> buildButtonWithDialog(
-                    item,
-                    "остановить",
-                    service::terminate
-                )
+                TERMINATED -> buildButtonWithDialog(item, "удалить", service::delete)
+                FREE, NOT_RESPONDED -> buildButtonWithDialog(item, "остановить", service::terminate)
                 else -> HtmlContainer("empty")
             }
         }).isAutoWidth = true
@@ -70,14 +142,18 @@ class AgentListView(private val service: AgentService) : AppLayout() {
             buildButtonWithDialog(item, "del", service::delete)
         }).isAutoWidth = true
 
-        grid.setItems(service.getAll())
-
 
         val reloadButton = Button("Обновить")
         reloadButton.addClickListener {
             grid.recalculateColumnWidths()
             grid.setItems(service.getAll())
             grid.recalculateColumnWidths()
+        }
+
+        editor.addSaveListener { event ->
+            service.assignDevice(event.item.id!!, event.item.assignedDevice)
+
+            UI.getCurrent().page.reload()
         }
 
         grid.setItemDetailsRenderer(

@@ -10,7 +10,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout
 import com.vaadin.flow.component.textfield.TextField
 import com.vaadin.flow.data.binder.Binder
 import com.vaadin.flow.data.validator.StringLengthValidator
-import com.vaadin.flow.function.ValueProvider
 import com.vaadin.flow.router.Route
 import com.vaadin.flow.router.RouterLink
 import com.vaadin.flow.theme.lumo.Lumo
@@ -71,19 +70,17 @@ class MainView(
         val editButtons: MutableCollection<Button> = Collections.newSetFromMap(WeakHashMap())
 
         val editorColumn: Grid.Column<Agent> =
-            grid.addComponentColumn(
-                ValueProvider<Agent, Button> { person: Agent? ->
-                    val edit = Button("Edit")
-                    edit.addClassName("edit")
-                    edit.addClickListener {
-                        editor.editItem(person)
-                        firstNameField.focus()
-                    }
-                    edit.isEnabled = !editor.isOpen
-                    editButtons.add(edit)
-                    edit
+            grid.addComponentColumn { person: Agent? ->
+                val edit = Button("Edit")
+                edit.addClassName("edit")
+                edit.addClickListener {
+                    editor.editItem(person)
+                    firstNameField.focus()
                 }
-            )
+                edit.isEnabled = !editor.isOpen
+                editButtons.add(edit)
+                edit
+            }
 
         editor.addOpenListener {
             editButtons.stream()
@@ -132,7 +129,7 @@ class MainView(
         )
 
         button.addClickListener {
-            service.create(Agent());
+            service.create(Agent())
             grid.dataProvider.refreshAll()
         }
 //        listCustomers()

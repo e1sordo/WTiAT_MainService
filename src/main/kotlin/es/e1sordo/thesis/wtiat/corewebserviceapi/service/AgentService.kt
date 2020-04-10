@@ -1,8 +1,8 @@
 package es.e1sordo.thesis.wtiat.corewebserviceapi.service
 
-import es.e1sordo.thesis.wtiat.corewebserviceapi.enum.AgentState
 import es.e1sordo.thesis.wtiat.corewebserviceapi.enum.AgentState.*
 import es.e1sordo.thesis.wtiat.corewebserviceapi.model.Agent
+import es.e1sordo.thesis.wtiat.corewebserviceapi.model.Device
 import es.e1sordo.thesis.wtiat.corewebserviceapi.repository.AgentRepository
 import es.e1sordo.thesis.wtiat.corewebserviceapi.util.getCurrentTime
 import org.springframework.stereotype.Service
@@ -15,7 +15,7 @@ class AgentService(private val repository: AgentRepository) {
         agent.id = null
         agent.registerDate = getCurrentTime()
         agent.lastResponseTime = agent.registerDate
-        agent.state = AgentState.FREE
+        agent.state = FREE
         return repository.save(agent)
     }
 
@@ -46,6 +46,18 @@ class AgentService(private val repository: AgentRepository) {
         }
 
         return repository.save(agent)
+    }
+
+    fun assignDevice(id: String, device: Device?) {
+        val agent = getById(id).get()
+
+        if (agent.assignedDevice != device) {
+            agent.assignedDevice = device
+
+            agent.assignedDate = if (agent.assignedDevice != null) getCurrentTime() else null
+
+            repository.save(agent)
+        }
     }
 
     fun terminate(id: String) {
