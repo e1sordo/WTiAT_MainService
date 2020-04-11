@@ -21,5 +21,5 @@ data class Metric(
     var name: String? = null,
     var description: String? = null,
     var unit: String? = null,
-    var access: List<String>? = null
+    var access: List<String>
 )

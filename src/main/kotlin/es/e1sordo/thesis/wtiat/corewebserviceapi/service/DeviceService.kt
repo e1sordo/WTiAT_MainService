@@ -5,7 +5,6 @@ import es.e1sordo.thesis.wtiat.corewebserviceapi.model.Device
 import es.e1sordo.thesis.wtiat.corewebserviceapi.repository.DeviceRepository
 import es.e1sordo.thesis.wtiat.corewebserviceapi.util.getCurrentTime
 import org.springframework.stereotype.Service
-import java.util.*
 
 @Service
 class DeviceService(
@@ -30,7 +29,7 @@ class DeviceService(
 
     fun getAll(): MutableList<Device> = repository.findAll()
 
-    fun getById(id: String): Optional<Device> = repository.findById(id)
+    fun getById(id: String): Device = repository.findById(id).orElseThrow(::RuntimeException)
 
     fun delete(id: String) = repository.deleteById(id)
 }
