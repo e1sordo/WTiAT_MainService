@@ -2,12 +2,8 @@ package es.e1sordo.thesis.wtiat.corewebserviceapi.service
 
 import es.e1sordo.thesis.wtiat.corewebserviceapi.TestSpecification
 import es.e1sordo.thesis.wtiat.corewebserviceapi.model.Device
-import org.springframework.beans.factory.annotation.Autowired
 
 class DeviceServiceTest extends TestSpecification {
-
-    @Autowired
-    DeviceService service
 
     def 'should create successfully'() {
         given:
@@ -18,7 +14,7 @@ class DeviceServiceTest extends TestSpecification {
         )
 
         when:
-        def response = service.create(deviceRequest)
+        def response = deviceService.create(deviceRequest)
 
         then:
         deviceRepository.count() == 1

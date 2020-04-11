@@ -12,13 +12,8 @@ import org.mapstruct.ReportingPolicy
 )
 open class DefaultMethods {
 
-    @Named("getAssignedDeviceIdIfExists")
-    fun getAssignedDeviceIdIfExists(device: Device?): String? {
-        return device?.id
-    }
-
     @Named("getAccessListFromMetric")
-    fun getAccessListFromMetric(metrics: List<Metric>): List<List<String>> {
-        return metrics.map { it.access }
+    fun getAccessListFromMetric(metrics: List<Metric>?): List<List<String>>? {
+        return metrics?.map { it.access }
     }
 }

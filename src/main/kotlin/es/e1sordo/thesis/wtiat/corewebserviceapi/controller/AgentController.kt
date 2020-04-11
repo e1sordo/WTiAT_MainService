@@ -13,22 +13,23 @@ import org.springframework.web.bind.annotation.*
     produces = [MediaType.APPLICATION_JSON_VALUE]
 )
 class AgentController(
-    private val agentService: AgentService,
+    private val service: AgentService,
+    private val deviceService: AgentService,
     private val dtoMapper: DtoMapper
 ) {
 
     @GetMapping
-    fun getAll(): List<AgentGetDto> = agentService.getAll().map(dtoMapper::toAgentGetDto)
+    fun getAll(): List<AgentGetDto> = service.getAll().map(dtoMapper::toAgentGetDto)
 
     @PostMapping
     fun exchange(@RequestBody request: AgentPostDto): AgentGetDto {
         val agentRequest = dtoMapper.fromAgentPostDto(request)
 
         val agentId = agentRequest.id
-        val createdAgent = if (agentId != null && (agentService.getById(agentId).isPresent)) {
-            agentService.update(agentRequest, fromAgent = true)
+        val createdAgent = if (agentId != null && (service.getById(agentId).isPresent)) {
+            service.update(agentRequest, fromAgent = true)
         } else {
-            agentService.create(agentRequest)
+            service.create(agentRequest)
         }
 
         return dtoMapper.toAgentGetDto(createdAgent)

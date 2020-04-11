@@ -7,7 +7,7 @@ data class AgentGetDto(
     var lastResponseTime: String? = null,
     var ip: String? = null,
     var pid: Int? = null,
-    var assignedDeviceId: String? = null,
+    var assignedDevice: DeviceGetDto? = null,
     var assignedDate: String? = null,
     var shouldTerminate: Boolean? = null
 )

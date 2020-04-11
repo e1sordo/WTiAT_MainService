@@ -7,7 +7,6 @@ import es.e1sordo.thesis.wtiat.corewebserviceapi.model.Agent
 import es.e1sordo.thesis.wtiat.corewebserviceapi.model.Device
 import org.mapstruct.Mapper
 import org.mapstruct.Mapping
-import org.mapstruct.Mappings
 import org.mapstruct.ReportingPolicy
 
 @Mapper(
@@ -17,16 +16,7 @@ import org.mapstruct.ReportingPolicy
 )
 interface DtoMapper {
 
-    @Mappings(
-        value = [
-            Mapping(target = "shouldTerminate", expression = "java(source.getState().getShouldTerminate())"),
-            Mapping(
-                target = "assignedDeviceId",
-                source = "assignedDevice",
-                qualifiedByName = ["getAssignedDeviceIdIfExists"]
-            )
-        ]
-    )
+    @Mapping(target = "shouldTerminate", expression = "java(source.getState().getShouldTerminate())")
     fun toAgentGetDto(source: Agent): AgentGetDto
 
     fun fromAgentPostDto(source: AgentPostDto): Agent
