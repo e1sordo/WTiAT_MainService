@@ -37,10 +37,12 @@ class AgentService(private val repository: AgentRepository) {
 
         if (fromAgent) {
             agent.lastResponseTime = getCurrentTime()
-            agent.state = if (agent.assignedDevice != null) BUSY else FREE
 
-            if (agent.state == TO_TERMINATE)
+            if (agent.state == TO_TERMINATE) {
                 agent.state = TERMINATED
+            } else {
+                agent.state = if (agent.assignedDevice != null) BUSY else FREE
+            }
         } else {
             agent.state = request.state
         }

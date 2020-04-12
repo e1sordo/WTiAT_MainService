@@ -9,6 +9,31 @@ application:
         type: Преобразователь частоты
         connection:
           protocol: TCP
+          params: ip, rack, slot
+        read:
+          params: number, index, dataType
+        defaultMetrics:
+          - name: speed
+            description: Действительная частота вращения двигателя
+            unit:
+            access: 21, 0, FLOAT_32
+            jvmType: float
+          - name: current
+            description: Действительное значение тока якоря
+            unit:
+            access: 27, 0, FLOAT_32
+            jvmType: float
+          - name: temperature
+            description: Температура
+            unit:
+            access: 35, 0, FLOAT_32
+            jvmType: float
+      tcp-siemens-sinamics-g120-emulator:
+        name: Sinamics G120 Emulator
+        manufacturer: Siemens
+        type: Преобразователь частоты. Эмуляция на Spring Boot
+        connection:
+          protocol: HTTP
           params: ip, port, rack, slot
         read:
           params: number, index, dataType
@@ -17,14 +42,17 @@ application:
             description: Действительная частота вращения двигателя
             unit:
             access: 21, 0, FLOAT_32
+            jvmType: float
           - name: current
             description: Действительное значение тока якоря
             unit:
             access: 27, 0, FLOAT_32
+            jvmType: float
           - name: temperature
             description: Температура
             unit:
             access: 35, 0, FLOAT_32
+            jvmType: float
 
 spring:
   data:

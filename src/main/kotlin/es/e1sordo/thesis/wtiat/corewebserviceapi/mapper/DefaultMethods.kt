@@ -1,6 +1,5 @@
 package es.e1sordo.thesis.wtiat.corewebserviceapi.mapper
 
-import es.e1sordo.thesis.wtiat.corewebserviceapi.model.Device
 import es.e1sordo.thesis.wtiat.corewebserviceapi.model.Metric
 import org.mapstruct.Mapper
 import org.mapstruct.Named
@@ -15,5 +14,10 @@ open class DefaultMethods {
     @Named("getAccessListFromMetric")
     fun getAccessListFromMetric(metrics: List<Metric>?): List<List<String>>? {
         return metrics?.map { it.access }
+    }
+
+    @Named("getTypesListFromMetric")
+    fun getTypesListFromMetric(metrics: List<Metric>?): List<String>? {
+        return metrics?.map { it.jvmType }
     }
 }

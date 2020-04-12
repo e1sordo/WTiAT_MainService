@@ -15,5 +15,5 @@ class MetricController {
     val log: Logger = LoggerFactory.getLogger(MetricController::class.java)
 
     @PostMapping("/load")
-    fun load(@RequestBody stats: List<Map<String, String>>) = log.info("Load statistics: $stats")
+    fun load(@RequestBody stats: List<Map<String, List<String>>>) = log.info("Load statistics: $stats")
 }

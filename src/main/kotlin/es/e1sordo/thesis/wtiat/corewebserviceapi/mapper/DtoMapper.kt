@@ -7,6 +7,7 @@ import es.e1sordo.thesis.wtiat.corewebserviceapi.model.Agent
 import es.e1sordo.thesis.wtiat.corewebserviceapi.model.Device
 import org.mapstruct.Mapper
 import org.mapstruct.Mapping
+import org.mapstruct.Mappings
 import org.mapstruct.ReportingPolicy
 
 @Mapper(
@@ -21,6 +22,11 @@ interface DtoMapper {
 
     fun fromAgentPostDto(source: AgentPostDto): Agent
 
-    @Mapping(target = "metrics", qualifiedByName = ["getAccessListFromMetric"])
+    @Mappings(
+        value = [
+            Mapping(target = "metrics", qualifiedByName = ["getAccessListFromMetric"]),
+            Mapping(target = "metricTypes", source = "metrics", qualifiedByName = ["getTypesListFromMetric"])
+        ]
+    )
     fun toDeviceGetDto(source: Device): DeviceGetDto
 }

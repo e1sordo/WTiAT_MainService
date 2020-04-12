@@ -7,5 +7,6 @@ data class DeviceGetDto(
     var gatheringFrequencyInMillis: Int? = null,
     var batchSendingFrequencyInMillis: Int? = null,
     var connectionValues: List<String>? = null,
-    var metrics: List<List<String>>? = null
+    var metrics: List<List<String>>? = null,
+    var metricTypes: List<String>? = null
 )
