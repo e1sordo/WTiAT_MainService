@@ -31,5 +31,7 @@ class DeviceService(
 
     fun getById(id: String): Device = repository.findById(id).orElseThrow(::RuntimeException)
 
+    fun getByName(name: String): Device = repository.findByName(name).orElseThrow(::RuntimeException)
+
     fun delete(id: String) = repository.deleteById(id)
 }

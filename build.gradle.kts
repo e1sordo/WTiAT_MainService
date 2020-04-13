@@ -41,6 +41,7 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-config-server")
     implementation("org.springframework.kafka:spring-kafka")
     implementation("com.github.javafaker:javafaker:0.12")
+    implementation("org.influxdb:influxdb-java:2.8")
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
     developmentOnly("org.springframework.boot:spring-boot-devtools")

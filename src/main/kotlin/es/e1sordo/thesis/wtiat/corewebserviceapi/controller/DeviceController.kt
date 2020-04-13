@@ -26,12 +26,9 @@ class DeviceController(
 
     val log: Logger = getLogger(DeviceController::class.java)
 
-    @GetMapping
-    fun getAll(): Map<String, DeviceScheme> = devicePrototypes.dictionary
+    @GetMapping("/prototypes")
+    fun getAllPrototypes(): Map<String, DeviceScheme> = devicePrototypes.dictionary
 
     @GetMapping("/{id}")
     fun get(@PathVariable id: String): DeviceGetDto = dtoMapper.toDeviceGetDto(service.getById(id))
-
-    @GetMapping("/ping")
-    fun ping() = log.info("Ping now!!")
 }
