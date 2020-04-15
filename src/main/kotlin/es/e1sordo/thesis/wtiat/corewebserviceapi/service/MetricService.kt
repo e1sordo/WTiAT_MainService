@@ -1,57 +1,74 @@
 package es.e1sordo.thesis.wtiat.corewebserviceapi.service
 
 import es.e1sordo.thesis.wtiat.corewebserviceapi.dto.TimestampMetric
+import es.e1sordo.thesis.wtiat.corewebserviceapi.model.Device
+import org.influxdb.InfluxDB
+import org.influxdb.InfluxDBFactory
 import org.influxdb.dto.BatchPoints
 import org.influxdb.dto.Point
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.util.concurrent.TimeUnit
 
 @Service
 class MetricService(private val deviceService: DeviceService) {
 
+    private val log: Logger = LoggerFactory.getLogger(MetricService::class.java)
+
     val retentionPolicy = "defaultPolicy"
-    val metricsDataBase = "metrics"
-    val measurementName = "devices"
+    val valueField = "value"
+    private val influxDb: InfluxDB = InfluxDBFactory.connect("http://localhost:8086")
 
-    val deviceFieldName = "device"
+    init {
+        val response = influxDb.ping()
+        if (response.version.equals("unknown", ignoreCase = true)) {
+            log.error("Failed to establish connection with InfluxDB")
+        }
+    }
 
-    fun storeInDataBase(metrics: List<TimestampMetric>, deviceId: String) {
+    fun storeInDataBase(batchMetrics: List<List<TimestampMetric>>, deviceId: String) {
         val device = deviceService.getById(deviceId)
 
-//        val influxDB = InfluxDBFactory.connect("http://localhost:8086")
-//        val response = influxDB.ping()
-//        if (response.version.equals("unknown", ignoreCase = true)) {
-//            println("Error")
-//            return
-//        }
-//        influxDB.createDatabase(metricsDataBase)
-//        influxDB.createRetentionPolicy(retentionPolicy, metricsDataBase, "100d", 1, true)
+        log.info("Load metrics for device ${device.name}. Total: ${batchMetrics.size}")
+        log.debug("Load metrics for device \${device.name: $batchMetrics")
+
+        setUpConnection(device)
 
         val batchPoints = BatchPoints
-            .database(metricsDataBase)
+            .database(device.name)
             .retentionPolicy(retentionPolicy)
             .build()
 
-        for (singleMetric in metrics) {
-            val pointBuilder: Point.Builder = Point.measurement(measurementName)
-                .time(singleMetric.timestamp, TimeUnit.MILLISECONDS)
-                .tag(deviceFieldName, device.name)
-
-            val metricList = singleMetric.metrics
+        for (singleMetricList in batchMetrics) {
             for ((index, metricTemplate) in device.metrics!!.withIndex()) {
-                val metricName = metricTemplate.name
-                val metricValue = metricList[index]
+                val timestampMetric = singleMetricList[index]
+
+                val pointBuilder: Point.Builder = Point.measurement(metricTemplate.name)
+                    .time(timestampMetric.timestamp, TimeUnit.MILLISECONDS)
+
+                val metricValue = timestampMetric.value
                 when (metricTemplate.jvmType) {
-                    "boolean" -> pointBuilder.addField(metricName, metricValue as Boolean)
-                    "int", "long" -> pointBuilder.addField(metricName, metricValue as Long)
-                    "float", "double" -> pointBuilder.addField(metricName, metricValue as Double)
-                    "short", "byte" -> pointBuilder.addField(metricName, metricValue as Number)
-                    else -> pointBuilder.addField(metricName, metricValue.toString())
+                    "boolean" -> pointBuilder.addField(valueField, metricValue as Boolean)
+                    "int", "long" -> pointBuilder.addField(valueField, metricValue as Long)
+                    "float", "double" -> pointBuilder.addField(valueField, metricValue as Double)
+                    "short", "byte" -> pointBuilder.addField(valueField, metricValue as Number)
+                    else -> pointBuilder.addField(valueField, metricValue.toString())
                 }
+
+                batchPoints.point(pointBuilder.build())
             }
-            batchPoints.point(pointBuilder.build())
         }
 
-        println(batchPoints)
+        influxDb.write(batchPoints)
+        influxDb.close()
+    }
+
+    private fun setUpConnection(device: Device) {
+        val deviceName = device.name
+        if (!influxDb.databaseExists(deviceName)) {
+            influxDb.createDatabase(deviceName)
+            influxDb.createRetentionPolicy(retentionPolicy, deviceName, "100d", 1, true)
+        }
     }
 }
