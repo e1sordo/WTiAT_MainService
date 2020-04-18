@@ -1,17 +1,19 @@
 package es.e1sordo.thesis.wtiat.corewebserviceapi.view
 
-import com.github.javafaker.Faker
 import com.vaadin.flow.component.ComponentEventListener
 import com.vaadin.flow.component.applayout.AppLayout
 import com.vaadin.flow.component.button.Button
 import com.vaadin.flow.component.dialog.Dialog
 import com.vaadin.flow.component.grid.Grid
 import com.vaadin.flow.component.grid.GridVariant
-import com.vaadin.flow.component.html.H2
+import com.vaadin.flow.component.html.Anchor
+import com.vaadin.flow.component.html.H1
 import com.vaadin.flow.component.html.NativeButton
+import com.vaadin.flow.component.html.Span
 import com.vaadin.flow.component.notification.Notification
 import com.vaadin.flow.component.orderedlayout.VerticalLayout
 import com.vaadin.flow.data.renderer.ComponentRenderer
+import com.vaadin.flow.function.SerializableFunction
 import com.vaadin.flow.router.Route
 import com.vaadin.flow.router.RouterLink
 import es.e1sordo.thesis.wtiat.corewebserviceapi.configuration.DevicePrototypes
@@ -32,14 +34,57 @@ class DeviceListView(
     var linkHome: RouterLink = RouterLink("Вернуться на главную", MainView::class.java)
 
     init {
-        addToNavbar(H2("Список существующих устройствы"))
+        addToNavbar(H1("Список существующих устройств"))
 
         //Выведем столбцы в нужном порядке
-        grid.addColumn(Device::id).setHeader("ID").isAutoWidth = true
+
+        grid.addColumn(
+            ComponentRenderer(SerializableFunction { device: Device ->
+                val sp = Span()
+                val deviceId = device.id
+                sp.text = deviceId
+                sp.style.set("font-size", "0.8em")
+                sp
+            })
+        ).setHeader("ID").isAutoWidth = true
+
         grid.addColumn(Device::name).setHeader("Название").isAutoWidth = true
-        grid.addColumn(Device::connectorName).setHeader("Коннектор").isAutoWidth = true
+
+        grid.addColumn(
+            ComponentRenderer(SerializableFunction { device: Device ->
+                val sp = Span()
+                val connectorName = device.connectorName
+                sp.text = connectorName
+                sp.style.set("font-size", "0.8em")
+                sp
+            })
+        ).setHeader("Коннектор").isAutoWidth = true
+
+        grid.addColumn(
+            ComponentRenderer(SerializableFunction { device: Device ->
+                val sp = Span()
+                val allMetrics = device.metrics
+                val size = allMetrics?.size ?: 0
+                sp.text = size.toString()
+                sp
+            })
+        ).setHeader("Метрик").isAutoWidth = true
+
+        grid.addColumn(Device::gatheringFrequencyInMillis).setHeader("Сбор каждые (мс)").isAutoWidth = true
+
+        grid.addColumn(Device::batchSendingFrequencyInMillis).setHeader("Отправка каждые (мс)").isAutoWidth = true
+
+        grid.addColumn(
+            ComponentRenderer(SerializableFunction { device: Device ->
+                val a = Anchor()
+                a.href = "http://localhost:3000/d/"
+                a.setTarget("_blank")
+                a.text = "Перейти"
+                a
+            })
+        ).setHeader("Dashboard").isAutoWidth = true
+
         grid.addColumn { it.registerDate?.howLongAgoItWasBeauty() }.setHeader("Регистрация").isAutoWidth = true
-        grid.addColumn { it.lastResponseTime?.howLongAgoItWasBeauty() }.setHeader("Последний отклик").isAutoWidth = true
 
 
         // TODO: for development purpose only!!!
@@ -50,7 +95,7 @@ class DeviceListView(
         grid.setItems(service.getAll())
 
 
-        val reloadButton = Button("Обновить")
+        val reloadButton = Button("Обновить таблицу")
         reloadButton.addClickListener {
             grid.recalculateColumnWidths()
             grid.setItems(service.getAll())
@@ -58,14 +103,15 @@ class DeviceListView(
         }
 
 
-        val faker = Faker()
-        val newButton = Button("Добавить новое")
+        val newButton = Button("Добавить новое устройство")
         newButton.addClickListener {
-            service.create(Device(
-                name = faker.company().name(),
-                connectionValues = arrayListOf("192.168.1.100", "5050", "0", "2"),
-                connectorName = prototypes.dictionary.entries.elementAt(Random.nextInt((prototypes.dictionary.size))).key
-            ))
+            service.create(
+                Device(
+                    name = "sdsdasd",
+                    connectionValues = arrayListOf("192.168.1.100", "5050", "0", "2"),
+                    connectorName = prototypes.dictionary.entries.elementAt(Random.nextInt((prototypes.dictionary.size))).key
+                )
+            )
             grid.setItems(service.getAll())
             grid.dataProvider.refreshAll()
         }
@@ -76,9 +122,9 @@ class DeviceListView(
         layout.setSizeFull()
         layout.add(
             linkHome,
+            newButton,
             reloadButton,
-            grid,
-            newButton
+            grid
         )
         content = layout
     }

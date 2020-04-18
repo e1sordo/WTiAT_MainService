@@ -1,9 +1,7 @@
 package es.e1sordo.thesis.wtiat.corewebserviceapi.service
 
+import es.e1sordo.thesis.wtiat.corewebserviceapi.configuration.InfluxConnector
 import es.e1sordo.thesis.wtiat.corewebserviceapi.dto.TimestampMetric
-import es.e1sordo.thesis.wtiat.corewebserviceapi.model.Device
-import org.influxdb.InfluxDB
-import org.influxdb.InfluxDBFactory
 import org.influxdb.dto.BatchPoints
 import org.influxdb.dto.Point
 import org.slf4j.Logger
@@ -12,20 +10,14 @@ import org.springframework.stereotype.Service
 import java.util.concurrent.TimeUnit
 
 @Service
-class MetricService(private val deviceService: DeviceService) {
+class MetricService(
+    private val deviceService: DeviceService,
+    private val influxConnector: InfluxConnector
+) {
 
     private val log: Logger = LoggerFactory.getLogger(MetricService::class.java)
 
-    val retentionPolicy = "defaultPolicy"
     val valueField = "value"
-    private val influxDb: InfluxDB = InfluxDBFactory.connect("http://localhost:8086")
-
-    init {
-        val response = influxDb.ping()
-        if (response.version.equals("unknown", ignoreCase = true)) {
-            log.error("Failed to establish connection with InfluxDB")
-        }
-    }
 
     fun storeInDataBase(batchMetrics: List<List<TimestampMetric>>, deviceId: String) {
         val device = deviceService.getById(deviceId)
@@ -33,11 +25,9 @@ class MetricService(private val deviceService: DeviceService) {
         log.info("Load metrics for device ${device.name}. Total: ${batchMetrics.size}")
         log.debug("Load metrics for device \${device.name: $batchMetrics")
 
-        setUpConnection(device)
-
         val batchPoints = BatchPoints
             .database(device.name)
-            .retentionPolicy(retentionPolicy)
+            .retentionPolicy(influxConnector.defaultRetentionPolicy)
             .build()
 
         for (singleMetricList in batchMetrics) {
@@ -60,15 +50,6 @@ class MetricService(private val deviceService: DeviceService) {
             }
         }
 
-        influxDb.write(batchPoints)
-        influxDb.close()
-    }
-
-    private fun setUpConnection(device: Device) {
-        val deviceName = device.name
-        if (!influxDb.databaseExists(deviceName)) {
-            influxDb.createDatabase(deviceName)
-            influxDb.createRetentionPolicy(retentionPolicy, deviceName, "100d", 1, true)
-        }
+        influxConnector.influxDb.write(batchPoints)
     }
 }

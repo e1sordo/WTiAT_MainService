@@ -12,7 +12,7 @@ import com.vaadin.flow.component.grid.Grid
 import com.vaadin.flow.component.grid.GridVariant
 import com.vaadin.flow.component.grid.editor.Editor
 import com.vaadin.flow.component.html.Div
-import com.vaadin.flow.component.html.H2
+import com.vaadin.flow.component.html.H1
 import com.vaadin.flow.component.html.NativeButton
 import com.vaadin.flow.component.html.Span
 import com.vaadin.flow.component.icon.VaadinIcon
@@ -45,7 +45,7 @@ class AgentListView(
     var linkHome: RouterLink = RouterLink("Вернуться на главную", MainView::class.java)
 
     init {
-        addToNavbar(H2("Список существующих агентов"))
+        addToNavbar(H1("Список существующих агентов"))
 
         grid.setItems(service.getAll())
 
@@ -170,7 +170,7 @@ class AgentListView(
         }).isAutoWidth = true
 
 
-        val reloadButton = Button("Обновить")
+        val reloadButton = Button("Обновить таблицу")
         reloadButton.addClickListener {
             grid.recalculateColumnWidths()
             grid.setItems(service.getAll())
