@@ -118,6 +118,13 @@ class DeviceListView(
 
         grid.addColumn { it.registerDate?.howLongAgoItWasBeauty() }.setHeader("Регистрация").isAutoWidth = true
 
+        grid.addColumn(ComponentRenderer { item: Device ->
+            val button = Button(VaadinIcon.EDIT.create())
+            button.addClickListener {
+                UI.getCurrent().navigate(ManageDeviceView::class.java, item.id)
+            }
+            button
+        }).isAutoWidth = true
 
         // TODO: for development purpose only!!!
         grid.addColumn(ComponentRenderer { item: Device ->
