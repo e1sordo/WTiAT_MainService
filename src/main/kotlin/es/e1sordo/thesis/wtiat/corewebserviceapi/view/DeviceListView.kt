@@ -7,10 +7,11 @@ import com.vaadin.flow.component.dialog.Dialog
 import com.vaadin.flow.component.grid.Grid
 import com.vaadin.flow.component.grid.GridVariant
 import com.vaadin.flow.component.html.Anchor
-import com.vaadin.flow.component.html.H1
+import com.vaadin.flow.component.html.H2
 import com.vaadin.flow.component.html.NativeButton
 import com.vaadin.flow.component.html.Span
 import com.vaadin.flow.component.notification.Notification
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout
 import com.vaadin.flow.component.orderedlayout.VerticalLayout
 import com.vaadin.flow.data.renderer.ComponentRenderer
 import com.vaadin.flow.data.renderer.TemplateRenderer
@@ -38,8 +39,6 @@ class DeviceListView(
     var linkHome: RouterLink = RouterLink("Вернуться на главную", MainView::class.java)
 
     init {
-        addToNavbar(H1("Список существующих устройств"))
-
         //Выведем столбцы в нужном порядке
 
         grid.addColumn(
@@ -265,11 +264,21 @@ class DeviceListView(
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES)
         grid.setSizeFull()
 
+
+        // Title block
+
+        val horizontalLayoutManage = HorizontalLayout()
+        horizontalLayoutManage.isPadding = true
+        horizontalLayoutManage.add(
+            reloadButton,
+            newButton
+        )
+
         layout.setSizeFull()
         layout.add(
+            H2("Зарегистрированные устройства"),
             linkHome,
-            newButton,
-            reloadButton,
+            horizontalLayoutManage,
             grid
         )
         content = layout

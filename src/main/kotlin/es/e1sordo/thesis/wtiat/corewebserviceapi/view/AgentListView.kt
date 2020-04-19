@@ -12,11 +12,12 @@ import com.vaadin.flow.component.grid.Grid
 import com.vaadin.flow.component.grid.GridVariant
 import com.vaadin.flow.component.grid.editor.Editor
 import com.vaadin.flow.component.html.Div
-import com.vaadin.flow.component.html.H1
+import com.vaadin.flow.component.html.H2
 import com.vaadin.flow.component.html.NativeButton
 import com.vaadin.flow.component.html.Span
 import com.vaadin.flow.component.icon.VaadinIcon
 import com.vaadin.flow.component.notification.Notification
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout
 import com.vaadin.flow.component.orderedlayout.VerticalLayout
 import com.vaadin.flow.data.binder.Binder
 import com.vaadin.flow.data.renderer.ComponentRenderer
@@ -44,8 +45,6 @@ class AgentListView(
     var linkHome: RouterLink = RouterLink("Вернуться на главную", MainView::class.java)
 
     init {
-        addToNavbar(H1("Список существующих агентов"))
-
         grid.setItems(service.getAll())
 
         //Выведем столбцы в нужном порядке
@@ -185,10 +184,20 @@ class AgentListView(
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES)
         grid.setSizeFull()
 
+
+        // Title block
+
+        val horizontalLayoutManage = HorizontalLayout()
+        horizontalLayoutManage.isPadding = true
+        horizontalLayoutManage.add(
+            reloadButton
+        )
+
         layout.setSizeFull()
         layout.add(
+            H2("Зарегистрированные агенты"),
             linkHome,
-            reloadButton,
+            horizontalLayoutManage,
             grid
         )
         content = layout
