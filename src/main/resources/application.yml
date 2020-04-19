@@ -15,22 +15,27 @@ application:
         defaultMetrics:
           - name: speed
             description: Действительная частота вращения двигателя
-            unit:
-            access: 21, 0, FLOAT_32
+            unit: hertz
+            access: 63, 0, FLOAT_32
             jvmType: float
           - name: current
             description: Действительное значение тока якоря
-            unit:
-            access: 27, 0, FLOAT_32
+            unit: amp
+            access: 68, 0, FLOAT_32
+            jvmType: float
+          - name: torque
+            description: Действительное значение момента
+            unit: forceNm
+            access: 80, 0, FLOAT_32
             jvmType: float
           - name: temperature
             description: Температура
-            unit:
+            unit: celsius
             access: 35, 0, FLOAT_32
             jvmType: float
       tcp-siemens-sinamics-g120-emulator:
         name: Sinamics G120 Emulator
-        manufacturer: Siemens
+        manufacturer: Vladimir Kostin
         type: Преобразователь частоты. Эмуляция на Spring Boot
         connection:
           protocol: HTTP
@@ -40,17 +45,22 @@ application:
         defaultMetrics:
           - name: speed
             description: Действительная частота вращения двигателя
-            unit:
-            access: 21, 0, FLOAT_32
+            unit: hertz
+            access: 63, 0, FLOAT_32
             jvmType: float
           - name: current
             description: Действительное значение тока якоря
-            unit:
-            access: 27, 0, FLOAT_32
+            unit: amp
+            access: 68, 0, FLOAT_32
+            jvmType: float
+          - name: torque
+            description: Действительное значение момента
+            unit: forceNm
+            access: 80, 0, FLOAT_32
             jvmType: float
           - name: temperature
             description: Температура
-            unit:
+            unit: celsius
             access: 35, 0, FLOAT_32
             jvmType: float
 

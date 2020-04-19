@@ -20,7 +20,6 @@ import com.vaadin.flow.component.notification.Notification
 import com.vaadin.flow.component.orderedlayout.VerticalLayout
 import com.vaadin.flow.data.binder.Binder
 import com.vaadin.flow.data.renderer.ComponentRenderer
-import com.vaadin.flow.data.renderer.TemplateRenderer
 import com.vaadin.flow.data.renderer.TextRenderer
 import com.vaadin.flow.function.SerializableFunction
 import com.vaadin.flow.router.Route
@@ -182,20 +181,6 @@ class AgentListView(
 
             UI.getCurrent().page.reload()
         }
-
-        grid.setItemDetailsRenderer(
-            TemplateRenderer.of<Agent>(
-                "<div style='border: 1px solid gray; padding: 10px; width: 100%; box-sizing: border-box;'>"
-                        + "<div>Hi! My name is <b>[[item.name]]!</b></div>"
-                        + "<div><img style='height: 80px; width: 80px;' src='[[item.image]]'/></div>"
-                        + "</div>"
-            )
-                .withProperty("name", Agent::name)
-                .withProperty("id", Agent::id)
-                .withProperty("state", Agent::state)
-                .withEventHandler("handleClick") {
-                    grid.dataProvider.refreshItem(it)
-                })
 
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES)
         grid.setSizeFull()

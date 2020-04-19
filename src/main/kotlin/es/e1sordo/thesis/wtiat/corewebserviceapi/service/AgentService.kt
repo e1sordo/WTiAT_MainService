@@ -21,7 +21,11 @@ class AgentService(private val repository: AgentRepository) {
 
     fun getAll(): MutableList<Agent> = repository.findAll()
 
+    fun getAllFreeAgents(): MutableList<Agent> = repository.findAllByAssignedDeviceNull()
+
     fun getById(id: String): Optional<Agent> = repository.findById(id)
+
+    fun getByAssignedDevice(device: Device): Optional<Agent> = repository.findAgentByAssignedDevice(device)
 
     fun delete(id: String) = repository.deleteById(id)
 
