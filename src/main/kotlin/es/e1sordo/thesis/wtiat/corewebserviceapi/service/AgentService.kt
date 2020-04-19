@@ -23,6 +23,8 @@ class AgentService(private val repository: AgentRepository) {
 
     fun getAllFreeAgents(): MutableList<Agent> = repository.findAllByAssignedDeviceNull()
 
+    fun getAllBusyAgents(): MutableList<Agent> = repository.findAllByAssignedDeviceNotNull()
+
     fun getById(id: String): Optional<Agent> = repository.findById(id)
 
     fun getByAssignedDevice(device: Device): Optional<Agent> = repository.findAgentByAssignedDevice(device)

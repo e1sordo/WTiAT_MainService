@@ -97,7 +97,7 @@ class AgentListView(
         editor.isBuffered = true
 
         val assignedDeviceSelect = ComboBox<Device>()
-        assignedDeviceSelect.setItems(deviceService.getAll())
+        assignedDeviceSelect.setItems(deviceService.getAllFreeDevices())
         assignedDeviceSelect.setRenderer(TextRenderer(Device::name))
         assignedDeviceSelect.isClearButtonVisible = true
         assignedDeviceSelect.setItemLabelGenerator { it.name }

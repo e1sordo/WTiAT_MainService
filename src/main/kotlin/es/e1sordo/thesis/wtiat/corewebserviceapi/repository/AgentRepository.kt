@@ -8,5 +8,7 @@ import java.util.*
 interface AgentRepository : MongoRepository<Agent, String> {
     fun findAllByAssignedDeviceNull(): MutableList<Agent>
 
+    fun findAllByAssignedDeviceNotNull(): MutableList<Agent>
+
     fun findAgentByAssignedDevice(device: Device): Optional<Agent>
 }

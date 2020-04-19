@@ -1,6 +1,8 @@
 package es.e1sordo.thesis.wtiat.corewebserviceapi.service
 
-import es.e1sordo.thesis.wtiat.corewebserviceapi.configuration.DevicePrototypes
+import es.e1sordo.thesis.wtiat.corewebserviceapi.configuration.GrafanaConnector
+import es.e1sordo.thesis.wtiat.corewebserviceapi.configuration.InfluxConnector
+import es.e1sordo.thesis.wtiat.corewebserviceapi.model.Agent
 import es.e1sordo.thesis.wtiat.corewebserviceapi.model.Device
 import es.e1sordo.thesis.wtiat.corewebserviceapi.repository.DeviceRepository
 import es.e1sordo.thesis.wtiat.corewebserviceapi.util.getCurrentTime
@@ -8,6 +10,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class DeviceService(
+    private val agentService: AgentService,
     private val repository: DeviceRepository,
     private val prototypes: DevicePrototypes
 ) {
@@ -19,8 +22,9 @@ class DeviceService(
         device.name = request.name
         device.connectorName = request.connectorName
         device.registerDate = getCurrentTime()
-        device.gatheringFrequencyInMillis = 500
-        device.batchSendingFrequencyInMillis = 5000
+        device.gatheringFrequencyInMillis = request.gatheringFrequencyInMillis
+        device.batchSendingFrequencyInMillis = request.batchSendingFrequencyInMillis
+        device.metrics = request.metrics
         device.connectionValues = request.connectionValues
         device.metrics = prototypes.dictionary[device.connectorName]?.defaultMetrics
 
@@ -28,6 +32,10 @@ class DeviceService(
     }
 
     fun getAll(): MutableList<Device> = repository.findAll()
+
+    fun getAllFreeDevices(): List<Device> = repository.findAll().filterNot {
+        agentService.getAllBusyAgents().map(Agent::assignedDevice).contains(it)
+    }
 
     fun getById(id: String): Device = repository.findById(id).orElseThrow(::RuntimeException)
 

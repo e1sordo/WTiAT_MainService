@@ -1,6 +1,7 @@
 package es.e1sordo.thesis.wtiat.corewebserviceapi.view
 
 import com.vaadin.flow.component.ComponentEventListener
+import com.vaadin.flow.component.UI
 import com.vaadin.flow.component.applayout.AppLayout
 import com.vaadin.flow.component.button.Button
 import com.vaadin.flow.component.dialog.Dialog
@@ -10,6 +11,7 @@ import com.vaadin.flow.component.html.Anchor
 import com.vaadin.flow.component.html.H2
 import com.vaadin.flow.component.html.NativeButton
 import com.vaadin.flow.component.html.Span
+import com.vaadin.flow.component.icon.VaadinIcon
 import com.vaadin.flow.component.notification.Notification
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout
 import com.vaadin.flow.component.orderedlayout.VerticalLayout
@@ -24,8 +26,6 @@ import es.e1sordo.thesis.wtiat.corewebserviceapi.service.AgentService
 import es.e1sordo.thesis.wtiat.corewebserviceapi.service.DeviceService
 import es.e1sordo.thesis.wtiat.corewebserviceapi.util.howLongAgoItWasBeauty
 import java.text.NumberFormat
-import kotlin.random.Random
-
 
 @Route("devices")
 class DeviceListView(
@@ -137,15 +137,7 @@ class DeviceListView(
 
         val newButton = Button("Добавить новое устройство")
         newButton.addClickListener {
-            service.create(
-                Device(
-                    name = "sdsdasd",
-                    connectionValues = arrayListOf("192.168.1.100", "5050", "0", "2"),
-                    connectorName = prototypes.dictionary.entries.elementAt(Random.nextInt((prototypes.dictionary.size))).key
-                )
-            )
-            grid.setItems(service.getAll())
-            grid.dataProvider.refreshAll()
+            UI.getCurrent().navigate(RegisterDeviceView::class.java)
         }
 
 
