@@ -30,7 +30,20 @@ class InfluxConnector {
             throw InfluxDBException("A database with the same name has already been created")
         } else {
             influxDb.createDatabase(name)
-            influxDb.createRetentionPolicy(defaultRetentionPolicy, name, defaultDuration, defaultReplicationFactor, true)
+            influxDb.createRetentionPolicy(
+                defaultRetentionPolicy,
+                name,
+                defaultDuration,
+                defaultReplicationFactor,
+                true
+            )
+        }
+    }
+
+    fun dropDataBase(name: String) {
+        if (influxDb.databaseExists(name)) {
+            influxDb.deleteDatabase(name)
+            influxDb.dropRetentionPolicy(defaultRetentionPolicy, name)
         }
     }
 }

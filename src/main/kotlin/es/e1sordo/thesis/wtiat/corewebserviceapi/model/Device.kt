@@ -14,7 +14,9 @@ data class Device(
     var gatheringFrequencyInMillis: Int? = null,
     var batchSendingFrequencyInMillis: Int? = null,
     var connectionValues: List<String>? = null,
-    var metrics: List<Metric>? = null
+    var metrics: List<Metric>? = null,
+    var dashboardUid: String? = null,
+    var dashboardUrl: String? = null
 )
 
 data class Metric(

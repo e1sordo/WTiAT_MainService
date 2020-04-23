@@ -12,7 +12,8 @@ import org.springframework.stereotype.Service
 class DeviceService(
     private val agentService: AgentService,
     private val repository: DeviceRepository,
-    private val prototypes: DevicePrototypes
+    private val influxConnector: InfluxConnector,
+    private val grafanaConnector: GrafanaConnector
 ) {
 
     fun create(request: Device): Device {
@@ -26,9 +27,22 @@ class DeviceService(
         device.batchSendingFrequencyInMillis = request.batchSendingFrequencyInMillis
         device.metrics = request.metrics
         device.connectionValues = request.connectionValues
-        device.metrics = prototypes.dictionary[device.connectorName]?.defaultMetrics
 
-        return repository.save(device)
+        val name = device.name!!
+        try {
+            influxConnector.createDataBase(name)
+            grafanaConnector.createDatasource(name)
+            val dashboard = grafanaConnector.createDashboard(name, device.connectorName!!)
+
+            device.dashboardUid = dashboard.uid
+            device.dashboardUrl = dashboard.url
+
+            return repository.save(device)
+        } catch (e: Exception) {
+            grafanaConnector.removeDatasource(name)
+            influxConnector.dropDataBase(name)
+            throw e
+        }
     }
 
     fun getAll(): MutableList<Device> = repository.findAll()
@@ -41,5 +55,14 @@ class DeviceService(
 
     fun getByName(name: String): Device = repository.findByName(name).orElseThrow(::RuntimeException)
 
-    fun delete(id: String) = repository.deleteById(id)
+    fun delete(id: String) {
+        val device = getById(id)
+        val name = device.name!!
+
+        grafanaConnector.removeDashboard(device.dashboardUid!!)
+        grafanaConnector.removeDatasource(name)
+        influxConnector.dropDataBase(name)
+
+        repository.deleteById(id)
+    }
 }

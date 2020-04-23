@@ -109,7 +109,7 @@ class DeviceListView(
         grid.addColumn(
             ComponentRenderer(SerializableFunction { device: Device ->
                 val a = Anchor()
-                a.href = "http://localhost:3000/d/"
+                a.href = "http://localhost:3000${device.dashboardUrl}"
                 a.setTarget("_blank")
                 a.text = "Перейти"
                 a

@@ -28,11 +28,6 @@ application:
             unit: forceNm
             access: 80, 0, FLOAT_32
             jvmType: float
-          - name: temperature
-            description: Температура
-            unit: celsius
-            access: 35, 0, FLOAT_32
-            jvmType: float
       tcp-siemens-sinamics-g120-emulator:
         name: Sinamics G120 Emulator
         manufacturer: Vladimir Kostin
@@ -66,7 +61,6 @@ application:
 
 spring:
   data:
-    #mongoDB
     mongodb:
       authentication-database: admin
       database: WTiAT_MainService
@@ -74,7 +68,6 @@ spring:
       port: 27017
   #      username: springboot
   #      password: spring
-  #jackson
   jackson:
     serialization:
       indent-output: true
@@ -82,3 +75,24 @@ spring:
       fail-on-empty-beans: false
     deserialization:
       fail-on-unknown-properties: false
+
+grafana:
+  username: admin
+  password: admin
+  api:
+    url: http://localhost:3000
+    path: "/api"
+
+logging:
+  level:
+    es.e1sordo.thesis.wtiat.corewebserviceapi.gateways:
+      GrafanaGateway: DEBUG # Feign logging only responds to the DEBUG level
+    root: INFO
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+        loggerLevel: full # Log the headers, body, and metadata for both requests and responses
